@@ -12,7 +12,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $users = User::all();  // Fetch all users
+
+        return view('users.index', compact('users'));
     }
 
     /**
@@ -28,7 +30,23 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8',
+            'zipcode' => 'required|string|max:10',
+            'profile' => 'nullable|string',
+            'handicap' => 'nullable|numeric|min:0|max:54',
+        ]);
+        
+        $validated['password'] = bcrypt($validated['password']);
+
+        // ✅ 2. Create the user
+        User::create($validated);
+    
+        // ✅ 3. Redirect with success message
+        return redirect()->route('users.create')->with('success', 'User created successfully!');
     }
 
     /**
