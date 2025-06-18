@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'golfapi' => [
+        'key' => env('GOLF_API_KEY'),
+        'host' => env('GOLF_API_HOST'),
+],
+
 ];
