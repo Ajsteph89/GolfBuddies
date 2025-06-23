@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GolfCourseController;
 
-Route::get('/courses', [GolfCourseController::class, 'index'])->name('courses.index');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/courses', [GolfCourseController::class, 'index'])->name('courses.index');
+});
 
 Route::get('/', function () {
     return view('welcome');
