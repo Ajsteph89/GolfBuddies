@@ -35,9 +35,8 @@ return [
         ],
     ],
 
-    'golfapi' => [
-        'key' => env('GOLF_API_KEY'),
-        'host' => env('GOLF_API_HOST'),
-],
-
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+        'host' => env('RAPIDAPI_HOST')
+    ],
 ];

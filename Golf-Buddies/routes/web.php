@@ -21,5 +21,4 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/courses', [GolfCourseController::class, 'index'])->name('courses.index');
 });
-
 require __DIR__.'/auth.php';

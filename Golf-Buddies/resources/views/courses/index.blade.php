@@ -9,38 +9,26 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold mb-6 text-[#006341]">Find Golf Courses by ZIP Code</h1>
 
-            <form method="GET" action="{{ route('courses.index') }}" class="mb-8 flex items-center space-x-3">
-                <input 
-                    type="text" 
-                    name="zip" 
-                    value="{{ old('zip', $zip ?? '') }}" 
-                    placeholder="Enter ZIP code" 
-                    required 
-                    pattern="\d{5}"
-                    title="Please enter a 5-digit ZIP code"
-                    class="border-2 border-[#006341] p-2 rounded w-40 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
-                />
-                <button type="submit" class="bg-[#FFD700] text-[#006341] px-4 py-2 rounded font-semibold hover:bg-yellow-400 transition">
+            <form method="GET" action="{{ route('courses.index') }}" class="mb-4 flex gap-2">
+                <input type="text" name="zip" placeholder="Enter ZIP code" required class="border p-2 rounded w-1/3" />
+                <button type="submit" class="bg-[#006341] hover:bg-[#004d33] text-white px-4 py-2 rounded">
                     Search
                 </button>
             </form>
 
             @if(!empty($courses))
-                <h2 class="text-2xl font-semibold mb-4 text-[#006341]">Courses near {{ $zip }}:</h2>
+                <h2 class="text-lg font-semibold mb-4">Courses near {{ $zip }}:</h2>
                 <ul class="space-y-4">
-                    @foreach($courses as $course)
-                        <li class="border border-[#006341] p-4 rounded shadow bg-green-50">
-                            <strong class="text-lg text-[#006341]">{{ $course['course_name'] ?? 'Unknown Course' }}</strong><br />
-                            @php
-                                $loc = $course['location'] ?? [];
-                            @endphp
-                            <span class="text-gray-700">{{ $loc['address'] ?? 'Address not available' }}</span><br />
-                            <span class="text-gray-600">{{ $loc['city'] ?? '' }}, {{ $loc['state'] ?? '' }} {{ $loc['postal_code'] ?? '' }}</span>
+                    @foreach($courses as $c)
+                        <li class="border p-4 rounded shadow bg-green-50">
+                            <strong>{{ $c['club_name'] }}</strong><br>
+                            <span>{{ $c['address'] ?? 'Address unavailable' }}</span><br>
+                            <small>Lat: {{ $c['latitude'] }}, Lon: {{ $c['longitude'] }}</small>
                         </li>
                     @endforeach
                 </ul>
             @elseif(isset($zip))
-                <p class="text-gray-500">No courses found near {{ $zip }}.</p>
+                <p>No golf courses found near <strong>{{ $zip }}</strong>.</p>
             @endif
         </div>
     </div>
