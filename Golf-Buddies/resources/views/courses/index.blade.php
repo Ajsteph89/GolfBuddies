@@ -21,10 +21,31 @@
                 <ul class="space-y-4">
                     @foreach($courses as $c)
                         <li class="border p-4 rounded shadow bg-green-50">
-                            <strong>{{ $c['club_name'] }}</strong><br>
-                            <span>{{ $c['address'] ?? 'Address unavailable' }}</span><br>
-                            <small>Lat: {{ $c['latitude'] }}, Lon: {{ $c['longitude'] }}</small>
-                        </li>
+                        <h3 class="text-xl font-bold text-[#006341]">{{ $c['club_name'] }}</h3>
+                        
+                            <div><strong>Membership:</strong> {{ $c['club_membership'] }}</div>
+                        <div><strong>Holes:</strong> {{ $c['number_of_holes'] }}</div>
+                        
+                        <div><strong>Driving Range:</strong> {{ $c['driving_range'] ? 'Yes' : 'No' }}</div>
+                        
+                        <div>
+                            <strong>Address:</strong> {{ $c['address'] }},
+                            {{ $c['city'] }}, {{ $c['state'] }} {{ $c['postal_code'] }}
+                        </div>
+
+                        <div><strong>Phone:</strong> {{ $c['phone'] }}</div>
+
+                        @if(!empty($c['website']))
+                            <div>
+                                <strong>Website:</strong>
+                                <a href="{{ $c['website'] }}" target="_blank" class="text-blue-600 underline">
+                                    {{ $c['website'] }}
+                                </a>
+                            </div>
+                        @endif
+
+
+                    </li>
                     @endforeach
                 </ul>
             @elseif(isset($zip))

@@ -50,4 +50,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function teeTimesCreated()
+    {
+        return $this->hasMany(TeeTime::class);
+    }
+
+    public function teeTimesJoined()
+    {
+        return $this->belongsToMany(TeeTime::class);
+    }
 }
