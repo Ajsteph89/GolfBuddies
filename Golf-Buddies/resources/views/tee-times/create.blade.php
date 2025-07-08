@@ -14,8 +14,9 @@
 
                 <div class="mb-4">
                     <label for="course_name" class="block font-medium text-gray-700">Course Name</label>
-                    <input type="text" name="course_name" id="course_name" required
-                        class="w-full border rounded p-2 mt-1" />
+                    <input type="text" name="course_name" id="course_name"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                        value="{{ old('course_name', $course ?? '') }}" required>
                 </div>
 
                 <div class="mb-4">
@@ -27,7 +28,7 @@
                 <div class="mb-4">
                     <label for="max_players" class="block font-medium text-gray-700">Max Players (optional)</label>
                     <input type="number" name="max_players" id="max_players"
-                        class="w-full border rounded p-2 mt-1" min="1" />
+                        class="w-full border rounded p-2 mt-1" min="1" max="4" value="{{ old('player_count', 1) }}" />
                 </div>
 
                 <div class="mb-4">

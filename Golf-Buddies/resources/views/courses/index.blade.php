@@ -19,34 +19,37 @@
             @if(!empty($courses))
                 <h2 class="text-lg font-semibold mb-4">Courses near {{ $zip }}:</h2>
                 <ul class="space-y-4">
-                    @foreach($courses as $c)
-                        <li class="border p-4 rounded shadow bg-green-50">
-                        <h3 class="text-xl font-bold text-[#006341]">{{ $c['club_name'] }}</h3>
-                        
-                            <div><strong>Membership:</strong> {{ $c['club_membership'] }}</div>
-                        <div><strong>Holes:</strong> {{ $c['number_of_holes'] }}</div>
-                        
-                        <div><strong>Driving Range:</strong> {{ $c['driving_range'] ? 'Yes' : 'No' }}</div>
-                        
+                @foreach($courses as $c)
+                    <li class="border p-4 rounded shadow bg-green-50 flex justify-between items-center">
                         <div>
-                            <strong>Address:</strong> {{ $c['address'] }},
-                            {{ $c['city'] }}, {{ $c['state'] }} {{ $c['postal_code'] }}
+                            <h3 class="text-xl font-bold text-[#006341]">{{ $c['club_name'] }}</h3>
+                            
+                            <div><strong>Membership:</strong> {{ $c['club_membership'] }}</div>
+                            <div><strong>Holes:</strong> {{ $c['number_of_holes'] }}</div>
+                            <div><strong>Driving Range:</strong> {{ $c['driving_range'] ? 'Yes' : 'No' }}</div>
+                            <div>
+                                <strong>Address:</strong> {{ $c['address'] }},
+                                {{ $c['city'] }}, {{ $c['state'] }} {{ $c['postal_code'] }}
+                            </div>
+                            <div><strong>Phone:</strong> {{ $c['phone'] }}</div>
+
+                            @if(!empty($c['website']))
+                                <div>
+                                    <strong>Website:</strong>
+                                    <a href="{{ $c['website'] }}" target="_blank" class="text-blue-600 underline">
+                                        {{ $c['website'] }}
+                                    </a>
+                                </div>
+                            @endif
                         </div>
 
-                        <div><strong>Phone:</strong> {{ $c['phone'] }}</div>
-
-                        @if(!empty($c['website']))
-                            <div>
-                                <strong>Website:</strong>
-                                <a href="{{ $c['website'] }}" target="_blank" class="text-blue-600 underline">
-                                    {{ $c['website'] }}
-                                </a>
-                            </div>
-                        @endif
-
-
+                        <div class="ml-4">
+                            <a href="{{ route('tee-times.create', ['course' => $c['club_name']]) }}" class="bg-green-600 text-white px-4 py-2 rounded whitespace-nowrap">
+                                + Create Tee Time
+                            </a>
+                        </div>
                     </li>
-                    @endforeach
+                @endforeach
                 </ul>
             @elseif(isset($zip))
                 <p>No golf courses found near <strong>{{ $zip }}</strong>.</p>

@@ -25,7 +25,7 @@
                     @if (!$teeTime->participants->contains(auth()->id()))
                         <form method="POST" action="{{ route('tee-times.join', $teeTime) }}">
                             @csrf
-                            <button class="mt-2 bg-blue-600 text-white px-3 py-1 rounded">Join Tee Time</button>
+                            <button class="mt-2 bg-yellow-400 text-white px-3 py-1 rounded">Join Tee Time</button>
                         </form>
                     @else
                         <p class="text-green-700 mt-2 font-semibold">You’ve joined this tee time!</p>

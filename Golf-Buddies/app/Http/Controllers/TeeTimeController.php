@@ -14,9 +14,13 @@ class TeeTimeController extends Controller
         return view('tee-times.index', compact('teeTimes'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('tee-times.create');
+        $course = $request->query('course');
+
+        return view('tee-times.create', [
+            'course' => $course,
+        ]);
     }
 
     public function store(Request $request)
@@ -24,7 +28,7 @@ class TeeTimeController extends Controller
         $validated = $request->validate([
             'course_name' => 'required|string|max:255',
             'scheduled_at' => 'required|date',
-            'max_players' => 'nullable|integer|min:1',
+            'max_players' => 'required|integer|min:1|max:4',
             'notes' => 'nullable|string',
         ]);
 
@@ -46,10 +50,17 @@ class TeeTimeController extends Controller
     {
         $user = Auth::user();
 
-        if (!$teeTime->participants->contains($user->id)) {
-            $teeTime->participants()->attach($user->id);
+        // Check if tee time is already full
+        if ($teeTime->participants->count() >= 4) {
+            return back()->with('error', 'This tee time is already full.');
         }
 
-        return back()->with('success', 'You joined the tee time!');
+        // Check if user is already a participant
+        if (!$teeTime->participants->contains($user->id)) {
+            $teeTime->participants()->attach($user->id);
+            return back()->with('success', 'You joined the tee time!');
+        }
+
+        return back()->with('info', 'You have already joined this tee time.');
     }
 }
