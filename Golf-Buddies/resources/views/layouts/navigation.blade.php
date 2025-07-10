@@ -19,8 +19,12 @@
                         {{ __('Courses') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('tee-times.index')" :active="request()->routeIs('tee-times.index')">
-                        {{ __('Tee Times') }}
+                    <x-nav-link :href="route('tee-times.mine')" :active="request()->routeIs('tee-times.mine')">
+                        {{ __('My Tee Times') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('tee-times.joinable')" :active="request()->routeIs('tee-times.joinable')">
+                        {{ __('Joinable Tee Times') }}
                     </x-nav-link>
                 </div>
             </div>

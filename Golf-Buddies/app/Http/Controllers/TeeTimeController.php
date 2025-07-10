@@ -8,12 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class TeeTimeController extends Controller
 {
-    public function index()
-    {
-        $teeTimes = TeeTime::with('participants', 'creator')->latest()->get();
-        return view('tee-times.index', compact('teeTimes'));
-    }
-
     public function create(Request $request)
     {
         $course = $request->query('course');
@@ -22,6 +16,17 @@ class TeeTimeController extends Controller
             'course' => $course,
         ]);
     }
+
+    public function destroy(TeeTime $teeTime)
+        {
+            if ($teeTime->user_id !== Auth::id()) {
+                abort(403, 'Unauthorized action.');
+            }
+
+            $teeTime->delete();
+
+            return redirect()->route('tee-times.mine')->with('success', 'Tee time cancelled successfully.');
+        }
 
     public function store(Request $request)
     {
@@ -46,6 +51,38 @@ class TeeTimeController extends Controller
         return redirect()->route('tee-times.index')->with('success', 'Tee time created!');
     }
 
+    public function joinable()
+    {
+        $user = Auth::user();
+
+        $teeTimes = TeeTime::with('participants')
+            ->whereDoesntHave('participants', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->where('user_id', '!=', $user->id)
+            ->latest()
+            ->get();
+
+        return view('tee-times.joinable', compact('teeTimes'));
+    }
+
+    public function mine()
+    {
+        $user = Auth::user();
+
+        $teeTimes = TeeTime::with('participants')
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhereHas('participants', function ($q) use ($user) {
+                        $q->where('user_id', $user->id);
+                    });
+            })
+            ->latest()
+            ->get();
+
+        return view('tee-times.mine', compact('teeTimes'));
+    }
+
     public function join(TeeTime $teeTime)
     {
         $user = Auth::user();
@@ -62,5 +99,16 @@ class TeeTimeController extends Controller
         }
 
         return back()->with('info', 'You have already joined this tee time.');
+    }
+
+    public function leave(TeeTime $teeTime)
+    {
+        $user = Auth::user();
+
+        if ($teeTime->participants->contains($user->id)) {
+            $teeTime->participants()->detach($user->id);
+        }
+
+        return back()->with('success', 'You have left the tee time.');
     }
 }

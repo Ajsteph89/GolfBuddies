@@ -25,10 +25,19 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/tee-times', [TeeTimeController::class, 'index'])->name('tee-times.index');
     Route::get('/tee-times/create', [TeeTimeController::class, 'create'])->name('tee-times.create');
+    
     Route::post('/tee-times', [TeeTimeController::class, 'store'])->name('tee-times.store');
+    
     Route::post('/tee-times/{teeTime}/join', [TeeTimeController::class, 'join'])->name('tee-times.join');
+    
+    Route::post('/tee-times/{teeTime}/leave', [TeeTimeController::class, 'leave'])->name('tee-times.leave');
+    
+    Route::get('/tee-times/joinable', [TeeTimeController::class, 'joinable'])->name('tee-times.joinable');
+
+    Route::get('/tee-times/mine', [TeeTimeController::class, 'mine'])->name('tee-times.mine');
+
+    Route::delete('/tee-times/{teeTime}', [TeeTimeController::class, 'destroy'])->name('tee-times.destroy');
 });
 
 require __DIR__.'/auth.php';
