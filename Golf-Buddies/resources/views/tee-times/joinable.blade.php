@@ -4,6 +4,19 @@
             {{ __('Joinable Tee Times') }}
         </h2>
     </x-slot>
+    
+    <div class="bg-white p-4">
+        <form method="GET" action="{{ route('tee-times.joinable') }}" class="flex items-center gap-4">
+            <label for="filter" class="text-green-900 font-medium">Filter:</label>
+            <select name="filter" id="filter" class="w-40 border-green-400 rounded p-2 focus:border-yellow-400 focus:ring-yellow-400">
+                <option value="">All</option>
+                <option value="nearby" {{ request('filter') === 'nearby' ? 'selected' : '' }}>Nearby</option>
+            </select>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Apply
+            </button>
+        </form>
+    </div>
 
     <div class="py-12 bg-white">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

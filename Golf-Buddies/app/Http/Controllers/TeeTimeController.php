@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TeeTime;
 use Illuminate\Http\Request;
+use App\Services\ZipGeocodeService;
 use Illuminate\Support\Facades\Auth;
 
 class TeeTimeController extends Controller
@@ -51,17 +52,41 @@ class TeeTimeController extends Controller
         return redirect()->route('tee-times.mine')->with('success', 'Tee time created!');
     }
 
-    public function joinable()
+    public function joinable(Request $request)
     {
         $user = Auth::user();
 
-        $teeTimes = TeeTime::with('participants')
-            ->whereDoesntHave('participants', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+        $query = TeeTime::with(['participants', 'creator'])
+            ->whereDoesntHave('participants', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
             })
             ->where('user_id', '!=', $user->id)
-            ->latest()
-            ->get();
+            ->where('scheduled_at', '>', now())
+            ->latest();
+
+        if ($request->input('filter') === 'nearby') {
+            $zip = $request->input('zip') ?? $user->zip;
+
+            if ($zip) {
+                $coords = (new ZipGeocodeService)->getCoordinates($zip);
+
+                if ($coords) {
+                    $lat = $coords['lat'];
+                    $lon = $coords['lon'];
+
+                    // Simple radius filter using Haversine formula (25 miles)
+                    $query->whereRaw("
+                        (3959 * acos(
+                            cos(radians(?)) * cos(radians(latitude)) *
+                            cos(radians(longitude) - radians(?)) +
+                            sin(radians(?)) * sin(radians(latitude))
+                        )) < 25
+                    ", [$lat, $lon, $lat]);
+                }
+            }
+        }
+
+        $teeTimes = $query->get();
 
         return view('tee-times.joinable', compact('teeTimes'));
     }
