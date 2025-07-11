@@ -16,6 +16,19 @@
     <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6 bg-green-50 p-6 rounded-lg shadow">
         @csrf
         @method('patch')
+        <div>
+            <x-input-label for="username" :value="__('Username')" class="text-green-900" />
+            <x-text-input 
+                id="username" 
+                name="username" 
+                type="text" 
+                class="mt-1 block w-full border-green-400 focus:border-yellow-400 focus:ring-yellow-400" 
+                :value="old('username', $user->username)" 
+                required 
+                autocomplete="username" 
+            />
+            <x-input-error class="mt-2 text-yellow-600" :messages="$errors->get('username')" />
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" class="text-green-900" />

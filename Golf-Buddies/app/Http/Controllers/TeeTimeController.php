@@ -32,7 +32,7 @@ class TeeTimeController extends Controller
     {
         $validated = $request->validate([
             'course_name' => 'required|string|max:255',
-            'scheduled_at' => 'required|date',
+            'scheduled_at' => 'required|date|after:now',
             'max_players' => 'required|integer|min:1|max:4',
             'notes' => 'nullable|string',
         ]);
@@ -48,7 +48,7 @@ class TeeTimeController extends Controller
         // Creator joins their own tee time
         $teeTime->participants()->attach(Auth::id());
 
-        return redirect()->route('tee-times.index')->with('success', 'Tee time created!');
+        return redirect()->route('tee-times.mine')->with('success', 'Tee time created!');
     }
 
     public function joinable()

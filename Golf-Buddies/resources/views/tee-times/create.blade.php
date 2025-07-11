@@ -22,7 +22,8 @@
                 <div class="mb-4">
                     <label for="scheduled_at" class="block font-medium text-gray-700">Date & Time</label>
                     <input type="datetime-local" name="scheduled_at" id="scheduled_at" required
-                        class="w-full border rounded p-2 mt-1" />
+                    class="w-full border rounded p-2 mt-1"
+                    min="{{ now()->format('Y-m-d\TH:i') }}" />
                 </div>
 
                 <div class="mb-4">

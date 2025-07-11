@@ -20,9 +20,14 @@
                     <div>
                         <h2 class="text-xl font-semibold">{{ $teeTime->course_name }}</h2>
                         <p><strong>Scheduled:</strong> {{ \Carbon\Carbon::parse($teeTime->scheduled_at)->format('M d, Y h:i A') }}</p>
-                        <p><strong>Organizer:</strong> {{ $teeTime->creator->name }}</p>
+                        <p><strong>Organizer:</strong> {{ $teeTime->creator->username }}</p>
                         <p><strong>Notes:</strong> {{ $teeTime->notes ?? 'N/A' }}</p>
                         <p><strong>Players:</strong> {{ $teeTime->participants->count() }}{{ $teeTime->max_players ? ' / ' . $teeTime->max_players : '' }}</p>
+                        <ul class="text-sm text-gray-700 list-disc list-inside">
+                            @foreach ($teeTime->participants as $participant)
+                                <li>{{ $participant->username }}</li>
+                            @endforeach
+                        </ul>
                     </div>
 
                     <!-- Right: Action buttons -->
