@@ -17,6 +17,9 @@
                     <input type="text" name="course_name" id="course_name"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                         value="{{ old('course_name', $course ?? '') }}" required>
+                    <input type="hidden" name="postal_code" value="{{ request('postal_code') }}">
+                    <input type="hidden" name="latitude" value="{{ request('latitude') }}">
+                    <input type="hidden" name="longitude" value="{{ request('longitude') }}">
                 </div>
 
                 <div class="mb-4">

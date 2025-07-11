@@ -44,7 +44,13 @@
                         </div>
 
                         <div class="ml-4">
-                            <a href="{{ route('tee-times.create', ['course' => $c['club_name']]) }}" class="bg-green-600 text-white px-4 py-2 rounded whitespace-nowrap">
+                            <a href="{{ route('tee-times.create', [
+                                'course' => $c['club_name'],
+                                'postal_code' => $c['postal_code'],
+                                'latitude' => $c['latitude'],
+                                'longitude' => $c['longitude']
+                                ]) }}" 
+                                class="bg-green-600 text-white px-4 py-2 rounded whitespace-nowrap">
                                 + Create Tee Time
                             </a>
                         </div>

@@ -36,6 +36,9 @@ class TeeTimeController extends Controller
             'scheduled_at' => 'required|date|after:now',
             'max_players' => 'required|integer|min:1|max:4',
             'notes' => 'nullable|string',
+            'postal_code' => 'nullable|string|max:20',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
 
         $teeTime = TeeTime::create([
@@ -44,6 +47,9 @@ class TeeTimeController extends Controller
             'scheduled_at' => $validated['scheduled_at'],
             'max_players' => $validated['max_players'],
             'notes' => $validated['notes'],
+            'postal_code' => $request->postal_code,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
         ]);
 
         // Creator joins their own tee time
@@ -55,6 +61,7 @@ class TeeTimeController extends Controller
     public function joinable(Request $request)
     {
         $user = Auth::user();
+        $filter = $request->input('filter', 'all');
 
         $query = TeeTime::with(['participants', 'creator'])
             ->whereDoesntHave('participants', function ($q) use ($user) {
@@ -75,20 +82,23 @@ class TeeTimeController extends Controller
                     $lon = $coords['lon'];
 
                     // Simple radius filter using Haversine formula (25 miles)
-                    $query->whereRaw("
+                    $query->select('*')->selectRaw("
                         (3959 * acos(
                             cos(radians(?)) * cos(radians(latitude)) *
                             cos(radians(longitude) - radians(?)) +
                             sin(radians(?)) * sin(radians(latitude))
-                        )) < 25
-                    ", [$lat, $lon, $lat]);
+                        )) AS distance
+                    ", [$lat, $lon, $lat])
+                    ->having("distance", "<", 25)
+                    ->orderBy("distance");
                 }
             }
         }
 
         $teeTimes = $query->get();
 
-        return view('tee-times.joinable', compact('teeTimes'));
+        return view('tee-times.joinable', compact('teeTimes', 'filter'));
+
     }
 
     public function mine()
