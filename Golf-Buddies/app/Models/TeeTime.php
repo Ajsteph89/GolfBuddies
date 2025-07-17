@@ -16,6 +16,9 @@ class TeeTime extends Model
         'scheduled_at',
         'notes',
         'max_players',
+        'postal_code',
+        'latitude',
+        'longitude',
     ];
 
     public function creator()

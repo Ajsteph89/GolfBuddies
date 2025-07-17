@@ -14,7 +14,10 @@ class TeeTimeController extends Controller
         $course = $request->query('course');
 
         return view('tee-times.create', [
-            'course' => $course,
+            'course' => $request->input('course'),
+            'postal_code' => $request->input('postal_code'),
+            'latitude' => $request->input('latitude'),
+            'longitude' => $request->input('longitude'),
         ]);
     }
 
@@ -40,6 +43,11 @@ class TeeTimeController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ]);
+
+        $geo = null;
+        if ($request->postal_code) {
+            $geo = (new ZipGeocodeService)->getCoordinates($request->postal_code);
+        }
 
         $teeTime = TeeTime::create([
             'user_id' => Auth::id(),
@@ -70,30 +78,32 @@ class TeeTimeController extends Controller
             ->where('user_id', '!=', $user->id)
             ->where('scheduled_at', '>', now())
             ->latest();
+// TODO: VERIFY THIS IF BLOCK IS WORKING AS EXPECTED
+        // if ($request->input('filter') === 'nearby') {
+        //     $zip = $request->input('postal_code') ?? $user->zipcode;
 
-        if ($request->input('filter') === 'nearby') {
-            $zip = $request->input('zip') ?? $user->zip;
+        //     if ($zip) {
+        //         $coords = (new ZipGeocodeService)->getCoordinates($zip);
 
-            if ($zip) {
-                $coords = (new ZipGeocodeService)->getCoordinates($zip);
+        //         if ($coords) {
+        //             $lat = $coords['lat'];
+        //             $lon = $coords['lon'];
 
-                if ($coords) {
-                    $lat = $coords['lat'];
-                    $lon = $coords['lon'];
-
-                    // Simple radius filter using Haversine formula (25 miles)
-                    $query->select('*')->selectRaw("
-                        (3959 * acos(
-                            cos(radians(?)) * cos(radians(latitude)) *
-                            cos(radians(longitude) - radians(?)) +
-                            sin(radians(?)) * sin(radians(latitude))
-                        )) AS distance
-                    ", [$lat, $lon, $lat])
-                    ->having("distance", "<", 25)
-                    ->orderBy("distance");
-                }
-            }
-        }
+        //             // Simple radius filter using Haversine formula (25 miles)
+        //             $query->selectRaw("
+        //             tee_times.*, (
+        //                 3959 * acos(
+        //                     cos(radians(?)) * cos(radians(latitude)) *
+        //                     cos(radians(longitude) - radians(?)) +
+        //                     sin(radians(?)) * sin(radians(latitude))
+        //                 )
+        //             ) AS distance
+        //         ", [$lat, $lon])
+        //         ->having("distance", "<", 25)
+        //         ->orderBy("distance");
+        //         }
+        //     }
+        // }
 
         $teeTimes = $query->get();
 
