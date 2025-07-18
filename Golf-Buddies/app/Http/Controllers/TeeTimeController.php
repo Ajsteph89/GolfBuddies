@@ -70,45 +70,44 @@ class TeeTimeController extends Controller
     {
         $user = Auth::user();
         $filter = $request->input('filter', 'all');
-
-        $query = TeeTime::with(['participants', 'creator'])
+    
+        // Get all joinable tee times
+        $teeTimes = TeeTime::with(['participants', 'creator'])
             ->whereDoesntHave('participants', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
             ->where('user_id', '!=', $user->id)
             ->where('scheduled_at', '>', now())
-            ->latest();
-// TODO: VERIFY THIS IF BLOCK IS WORKING AS EXPECTED
-        // if ($request->input('filter') === 'nearby') {
-        //     $zip = $request->input('postal_code') ?? $user->zipcode;
-
-        //     if ($zip) {
-        //         $coords = (new ZipGeocodeService)->getCoordinates($zip);
-
-        //         if ($coords) {
-        //             $lat = $coords['lat'];
-        //             $lon = $coords['lon'];
-
-        //             // Simple radius filter using Haversine formula (25 miles)
-        //             $query->selectRaw("
-        //             tee_times.*, (
-        //                 3959 * acos(
-        //                     cos(radians(?)) * cos(radians(latitude)) *
-        //                     cos(radians(longitude) - radians(?)) +
-        //                     sin(radians(?)) * sin(radians(latitude))
-        //                 )
-        //             ) AS distance
-        //         ", [$lat, $lon])
-        //         ->having("distance", "<", 25)
-        //         ->orderBy("distance");
-        //         }
-        //     }
-        // }
-
-        $teeTimes = $query->get();
-
+            ->latest()
+            ->get();
+    
+        // Nearby filter using Haversine if enabled
+        if ($filter === 'nearby' && $user->zipcode) {
+            $coords = (new ZipGeocodeService)->getCoordinates($user->zipcode);
+    
+            if ($coords) {
+                $lat1 = $coords['lat'];
+                $lon1 = $coords['lon'];
+    
+                // Filter using Haversine formula
+                $teeTimes = $teeTimes->filter(function ($teeTime) use ($lat1, $lon1) {
+                    if (!$teeTime->latitude || !$teeTime->longitude) return false;
+    
+                    $lat2 = $teeTime->latitude;
+                    $lon2 = $teeTime->longitude;
+    
+                    $distance = 3959 * acos(
+                        cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+                        cos(deg2rad($lon2 - $lon1)) +
+                        sin(deg2rad($lat1)) * sin(deg2rad($lat2))
+                    );
+    
+                    return $distance <= 25;
+                });
+            }
+        }
+    
         return view('tee-times.joinable', compact('teeTimes', 'filter'));
-
     }
 
     public function mine()
