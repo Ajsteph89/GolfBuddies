@@ -78,6 +78,7 @@ class TeeTimeController extends Controller
             })
             ->where('user_id', '!=', $user->id)
             ->where('scheduled_at', '>', now())
+            ->whereRaw('(SELECT COUNT(*) FROM tee_time_user WHERE tee_time_user.tee_time_id = tee_times.id) < tee_times.max_players')
             ->latest()
             ->get();
     
@@ -132,7 +133,7 @@ class TeeTimeController extends Controller
         $user = Auth::user();
 
         // Check if tee time is already full
-        if ($teeTime->participants->count() >= 4) {
+        if ($teeTime->participants->count() >= $teeTime->max_players) {
             return back()->with('error', 'This tee time is already full.');
         }
 

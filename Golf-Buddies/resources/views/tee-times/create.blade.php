@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="max_players" class="block font-medium text-gray-700">Max Players (optional)</label>
+                    <label for="max_players" class="block font-medium text-gray-700">Max Players</label>
                     <input type="number" name="max_players" id="max_players"
                         class="w-full border rounded p-2 mt-1" min="1" max="4" value="{{ old('player_count', 1) }}" />
                 </div>
