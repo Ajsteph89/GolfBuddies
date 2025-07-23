@@ -15,7 +15,6 @@ class GolfCourseService
             'latitude' => $lat,
             'longitude' => $lon,
             'miles' => $radius, // max 50 miles :contentReference[oaicite:8]{index=8}
-            'page' => 1,
         ]);
     
         
