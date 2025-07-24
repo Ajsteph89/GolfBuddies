@@ -6,6 +6,8 @@ use App\Models\TeeTime;
 use Illuminate\Http\Request;
 use App\Services\ZipGeocodeService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class TeeTimeController extends Controller
 {
@@ -71,18 +73,19 @@ class TeeTimeController extends Controller
         $user = Auth::user();
         $filter = $request->input('filter', 'all');
     
-        // Get all joinable tee times
-        $teeTimes = TeeTime::with(['participants', 'creator'])
+        // Base query for joinable tee times
+        $query = TeeTime::with(['participants', 'creator'])
             ->whereDoesntHave('participants', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
             ->where('user_id', '!=', $user->id)
             ->where('scheduled_at', '>', now())
             ->whereRaw('(SELECT COUNT(*) FROM tee_time_user WHERE tee_time_user.tee_time_id = tee_times.id) < tee_times.max_players')
-            ->oldest('scheduled_at')
-            ->paginate(5);
+            ->oldest('scheduled_at');
     
-        // Nearby filter using Haversine if enabled
+        $teeTimes = $query->get(); // get all matching tee times as a Collection
+    
+        // Nearby filter using Haversine if selected
         if ($filter === 'nearby' && $user->zipcode) {
             $coords = (new ZipGeocodeService)->getCoordinates($user->zipcode);
     
@@ -90,7 +93,6 @@ class TeeTimeController extends Controller
                 $lat1 = $coords['lat'];
                 $lon1 = $coords['lon'];
     
-                // Filter using Haversine formula
                 $teeTimes = $teeTimes->filter(function ($teeTime) use ($lat1, $lon1) {
                     if (!$teeTime->latitude || !$teeTime->longitude) return false;
     
@@ -108,6 +110,19 @@ class TeeTimeController extends Controller
             }
         }
     
+        // Manual pagination for both filtered/unfiltered results
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 5;
+        $paged = $teeTimes->slice(($currentPage - 1) * $perPage, $perPage)->values();
+    
+        $teeTimes = new LengthAwarePaginator(
+            $paged,
+            $teeTimes->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+    
         return view('tee-times.joinable', compact('teeTimes', 'filter'));
     }
 
@@ -123,7 +138,7 @@ class TeeTimeController extends Controller
                     });
             })
             ->oldest('scheduled_at')
-            ->paginate(5);
+            ->paginate(5)->withQueryString();
 
         return view('tee-times.mine', compact('teeTimes'));
     }
