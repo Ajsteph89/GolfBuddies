@@ -63,5 +63,6 @@
                 </div>
             @endforeach
         </div>
+        <x-pagination :paginator="$teeTimes" />
     </div>
 </x-app-layout>

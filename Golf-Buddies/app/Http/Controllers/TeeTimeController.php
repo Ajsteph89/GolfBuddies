@@ -79,8 +79,8 @@ class TeeTimeController extends Controller
             ->where('user_id', '!=', $user->id)
             ->where('scheduled_at', '>', now())
             ->whereRaw('(SELECT COUNT(*) FROM tee_time_user WHERE tee_time_user.tee_time_id = tee_times.id) < tee_times.max_players')
-            ->latest()
-            ->get();
+            ->oldest('scheduled_at')
+            ->paginate(5);
     
         // Nearby filter using Haversine if enabled
         if ($filter === 'nearby' && $user->zipcode) {
@@ -122,8 +122,8 @@ class TeeTimeController extends Controller
                         $q->where('user_id', $user->id);
                     });
             })
-            ->latest()
-            ->get();
+            ->oldest('scheduled_at')
+            ->paginate(5);
 
         return view('tee-times.mine', compact('teeTimes'));
     }

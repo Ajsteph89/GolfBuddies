@@ -60,6 +60,7 @@
             @elseif(isset($zip))
                 <p>No golf courses found near <strong>{{ $zip }}</strong>.</p>
             @endif
+            <x-pagination :paginator="$courses" />
         </div>
     </div>
 </x-app-layout>
